@@ -125,23 +125,32 @@ class OutputHandler(object):
     def store_system_info(self, opSystem, cpu_model, cpu_number_of_cores, cpu_max_frequency, memory, hostname,
                           runSet=None, environment={},
                           cpu_turboboost=None):
+        # Do not write the system information twice!
         for systemInfo in self.xml_header.findall("systeminfo"):
                     if systemInfo.attrib["hostname"] == hostname:
                         return
 
         osElem = ET.Element("os", {"name":opSystem})
+
+        # XML tag holding information on the CPU
         cpuElem = ET.Element("cpu", {"model":cpu_model, "cores":cpu_number_of_cores, "frequency":str(cpu_max_frequency)})
         if cpu_turboboost is not None:
             cpuElem.set("turboboostActive", str(cpu_turboboost).lower())
+
         ramElem = ET.Element("ram", {"size":str(memory)})
+
+        # Construct the parent tag 'systeminfo' and add the child elements
         systemInfo = ET.Element("systeminfo", {"hostname":hostname})
         systemInfo.append(osElem)
         systemInfo.append(cpuElem)
         systemInfo.append(ramElem)
+
+        # We might add environment information
         env = ET.SubElement(systemInfo, "environment")
         for var, value in sorted(environment.items()):
             ET.SubElement(env, "var", name=var).text = value
 
+        # Add the 'systeminfo' element to the XML document
         self.xml_header.append(systemInfo)
         if runSet:
             # insert before <run> tags to conform with DTD
