@@ -125,6 +125,10 @@ class OutputHandler(object):
     def store_system_info(self, opSystem, cpu_model, cpu_number_of_cores, cpu_max_frequency, memory, hostname,
                           runSet=None, environment={},
                           cpu_turboboost=None):
+
+        # ATTENTION: 
+        #   This function gets called form some executors directly! 
+
         # Do not write the system information twice!
         for systemInfo in self.xml_header.findall("systeminfo"):
                     if systemInfo.attrib["hostname"] == hostname:
